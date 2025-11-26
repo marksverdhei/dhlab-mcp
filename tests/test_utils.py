@@ -1,4 +1,4 @@
-from python_template.utils import foo
+from dhlab_mcp.utils import foo
 
 def test_foo():
     result = foo()
