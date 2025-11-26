@@ -13,7 +13,7 @@ def search_texts(
     limit: int = 10,
     from_year: int | None = None,
     to_year: int | None = None,
-    media_type: str = "aviser",
+    media_type: str = "digavis",
 ) -> str:
     """Search for texts in the National Library's digital collection.
 
@@ -22,19 +22,23 @@ def search_texts(
         limit: Maximum number of results to return (default: 10)
         from_year: Start year for search period (optional)
         to_year: End year for search period (optional)
-        media_type: Type of media to search. Options: 'aviser' (newspapers), 'bøker' (books),
-                   'tidsskrift' (journals). Default: 'aviser'
+        media_type: Type of media to search. Options: 'digavis' (newspapers), 'digibok' (books),
+                   'digitidsskrift' (journals). Default: 'digavis'
 
     Returns:
         JSON string containing search results with metadata
     """
     try:
-        # Build search parameters
-        params = {"q": query, "limit": limit, "mediatype": media_type}
+        # Build search parameters using correct Corpus API
+        params = {
+            "fulltext": query,
+            "limit": limit,
+            "doctype": media_type
+        }
         if from_year:
-            params["from"] = from_year
+            params["from_year"] = from_year
         if to_year:
-            params["to"] = to_year
+            params["to_year"] = to_year
 
         # Perform search using dhlab
         corpus = dhlab.Corpus(**params)
@@ -99,15 +103,12 @@ def find_concordances(
         JSON string containing concordance results
     """
     try:
-        concordance = dhlab.Concordance(
-            urns=[urn],
-            words=[word],
-            window=window,
-            limit=limit
-        )
+        from dhlab.api.dhlab_api import concordance
 
-        if hasattr(concordance, 'concordance') and concordance.concordance is not None:
-            return concordance.concordance.to_json(orient='records', force_ascii=False)
+        results = concordance(urns=[urn], words=word, window=window, limit=limit)
+
+        if results is not None and len(results) > 0:
+            return results.to_json(orient='records', force_ascii=False)
         return "No concordances found"
     except Exception as e:
         return f"Error finding concordances: {str(e)}"
@@ -132,16 +133,12 @@ def find_collocations(
         JSON string containing collocation statistics
     """
     try:
-        collocations = dhlab.Collocations(
-            urns=[urn],
-            words=[word],
-            before=window,
-            after=window,
-            limit=limit
-        )
+        from dhlab.api.dhlab_api import urn_collocation
 
-        if hasattr(collocations, 'collocations') and collocations.collocations is not None:
-            return collocations.collocations.to_json(orient='records', force_ascii=False)
+        results = urn_collocation(urns=[urn], word=word, before=window, after=window)
+
+        if results is not None and len(results) > 0:
+            return results.to_json(orient='records', force_ascii=False)
         return "No collocations found"
     except Exception as e:
         return f"Error finding collocations: {str(e)}"
@@ -206,21 +203,14 @@ def search_images(
         JSON string containing image search results with URLs
     """
     try:
-        # Use legacy nbpictures API
-        import dhlab.legacy.nbpictures as nbp
+        from dhlab.images.nbpictures import find_urls
 
-        params = {"term": query, "size": limit}
-        if from_year:
-            params["from_year"] = from_year
-        if to_year:
-            params["to_year"] = to_year
+        # find_urls returns a list of URLs
+        results = find_urls(term=query, number=limit, mediatype="bilder")
 
-        results = nbp.find_pictures(**params)
-
-        if results is not None:
-            if hasattr(results, 'to_json'):
-                return results.to_json(orient='records', force_ascii=False)
-            return str(results)
+        if results is not None and len(results) > 0:
+            import json
+            return json.dumps(results, ensure_ascii=False)
         return "No images found"
     except Exception as e:
         return f"Error searching images: {str(e)}"
@@ -237,17 +227,13 @@ def get_corpus_statistics(urns: list[str]) -> str:
         JSON string containing corpus statistics
     """
     try:
-        corpus = dhlab.Corpus(doctype='urn', urns=urns)
+        from dhlab.api.dhlab_api import get_metadata
 
-        if hasattr(corpus, 'corpus') and corpus.corpus is not None:
-            # Get basic statistics
-            stats = {
-                "document_count": len(corpus.corpus),
-                "documents": corpus.corpus.to_dict('records')
-            }
-            import json
-            return json.dumps(stats, ensure_ascii=False)
-        return "No corpus data available"
+        metadata = get_metadata(urns=urns)
+
+        if metadata is not None and len(metadata) > 0:
+            return metadata.to_json(orient='records', force_ascii=False)
+        return "No metadata available"
     except Exception as e:
         return f"Error getting corpus statistics: {str(e)}"
 
