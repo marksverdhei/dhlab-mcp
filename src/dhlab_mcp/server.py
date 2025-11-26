@@ -103,12 +103,17 @@ def find_concordances(
         JSON string containing concordance results
     """
     try:
-        from dhlab.api.dhlab_api import concordance
+        # Create corpus from URN
+        corpus = dhlab.Corpus.from_identifiers([urn])
 
-        results = concordance(urns=[urn], words=word, window=window, limit=limit)
+        if len(corpus.corpus) == 0:
+            return f"No document found for URN: {urn}"
 
-        if results is not None and len(results) > 0:
-            return results.to_json(orient='records', force_ascii=False)
+        # Get concordances using corpus method
+        concs = corpus.conc(words=word, window=window, limit=limit)
+
+        if concs.concordance is not None and len(concs.concordance) > 0:
+            return concs.concordance.to_json(orient='records', force_ascii=False)
         return "No concordances found"
     except Exception as e:
         return f"Error finding concordances: {str(e)}"
@@ -133,12 +138,17 @@ def find_collocations(
         JSON string containing collocation statistics
     """
     try:
-        from dhlab.api.dhlab_api import urn_collocation
+        # Create corpus from URN
+        corpus = dhlab.Corpus.from_identifiers([urn])
 
-        results = urn_collocation(urns=[urn], word=word, before=window, after=window)
+        if len(corpus.corpus) == 0:
+            return f"No document found for URN: {urn}"
 
-        if results is not None and len(results) > 0:
-            return results.to_json(orient='records', force_ascii=False)
+        # Get collocations using corpus method
+        colls = corpus.coll(words=word, before=window, after=window)
+
+        if colls.coll is not None and len(colls.coll) > 0:
+            return colls.coll.to_json(orient='records', force_ascii=False)
         return "No collocations found"
     except Exception as e:
         return f"Error finding collocations: {str(e)}"
