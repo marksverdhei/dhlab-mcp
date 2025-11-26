@@ -1,13 +1,17 @@
 [project]
 name = "dhlab-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "MCP server providing access to DHLAB (National Library of Norway Digital Humanities Lab) functionality"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastmcp>=2.0.0",
+    "dhlab>=2.41.0",
+    "pandas",
+]
 
 [project.scripts]
-dhlab-mcp = "dhlab_mcp:cli.main"
+dhlab-mcp = "dhlab_mcp.server:main"
 
 [build-system]
 requires = ["hatchling"]
