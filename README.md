@@ -1,37 +1,174 @@
 # dhlab-mcp
 
-This project uses [`uv`](https://github.com/astral-sh/uv), which can be installed in one line: 
+MCP server providing access to [DHLAB](https://github.com/NationalLibraryOfNorway/DHLAB) (National Library of Norway Digital Humanities Lab) functionality through the Model Context Protocol.
+
+## Overview
+
+This server exposes tools for:
+- **Text search**: Search the National Library's digital text collection
+- **NGram analysis**: Analyze word frequency trends over time
+- **Concordance**: Find word contexts in documents
+- **Collocations**: Discover words that appear together
+- **Word lookup**: Look up Norwegian word forms and lemmas
+- **Image search**: Search for images in the digital collection
+- **Corpus statistics**: Get information about document collections
+
+## Installation
+
+This project uses [`uv`](https://github.com/astral-sh/uv), which can be installed with:
 ```bash
 # On macOS and Linux.
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-To get started with the project:
-
-```
+Clone and install:
+```bash
 git clone https://github.com/marksverdhei/dhlab-mcp.git
 cd dhlab-mcp
-```
-
-Then install project with
-```
 uv sync --dev
-source .venv/bin/activate
 ```
 
-For development, make sure to install the project with the `-e` flag 
-so the source code isn't distributed to `.venv`:
-```
-uv pip install -e .
-```
-
-Then you can run the default cli, which can be customized in `cli.py` and `pyproject.toml`  
-```
-$ dhlab-mcp
-Hello from dhlab-mcp
-```
-
-How to install:
+Or install directly:
 ```bash
 pip install git+https://github.com/marksverdhei/dhlab-mcp.git
 ```
+
+## Usage
+
+### Configuring in Claude Code CLI
+
+Add the MCP server to your Claude Code configuration:
+
+```bash
+claude mcp add --transport stdio dhlab -- uv --directory /path/to/dhlab-mcp run dhlab-mcp
+```
+
+Replace `/path/to/dhlab-mcp` with the actual path where you cloned this repository.
+
+Verify the server is added:
+```bash
+claude mcp list
+```
+
+The DHLAB tools will then be available in your Claude Code sessions.
+
+### Running the MCP Server Standalone
+
+You can also run the server directly for testing:
+
+```bash
+dhlab-mcp
+```
+
+Or in development mode:
+```bash
+uv run dhlab-mcp
+```
+
+### Available Tools
+
+#### 1. `search_texts`
+Search for texts in the digital collection.
+```python
+{
+  "query": "ibsen",
+  "limit": 10,
+  "from_year": 1900,
+  "to_year": 1950,
+  "media_type": "aviser"  # or "bøker", "tidsskrift"
+}
+```
+
+#### 2. `ngram_frequencies`
+Get word frequency trends over time.
+```python
+{
+  "words": ["frihet", "demokrati"],
+  "corpus": "bok",  # or "avis"
+  "from_year": 1810,
+  "to_year": 2020
+}
+```
+
+#### 3. `find_concordances`
+Find word contexts in a document.
+```python
+{
+  "urn": "URN:NBN:no-nb_digibok_2008051404065",
+  "word": "Norge",
+  "window": 25
+}
+```
+
+#### 4. `find_collocations`
+Find words that appear near the target word.
+```python
+{
+  "urn": "URN:NBN:no-nb_digibok_2008051404065",
+  "word": "frihet",
+  "window": 5
+}
+```
+
+#### 5. `lookup_word_forms`
+Look up different forms of a Norwegian word.
+```python
+{
+  "word": "løpe"
+}
+```
+
+#### 6. `lookup_word_lemma`
+Look up the lemma (base form) of a word.
+```python
+{
+  "word": "løper"
+}
+```
+
+#### 7. `search_images`
+Search for images in the collection.
+```python
+{
+  "query": "Oslo",
+  "limit": 10,
+  "from_year": 1900,
+  "to_year": 1950
+}
+```
+
+#### 8. `get_corpus_statistics`
+Get statistics about a set of documents.
+```python
+{
+  "urns": ["URN:NBN:no-nb_digibok_2008051404065"]
+}
+```
+
+## Development
+
+For development, install with:
+```bash
+uv sync --dev
+uv pip install -e .
+```
+
+Run tests:
+```bash
+pytest
+```
+
+Format code:
+```bash
+ruff format src/ tests/
+```
+
+## About DHLAB
+
+DHLAB is a Python library for qualitative and quantitative analyses of digital texts from the National Library of Norway's collection. For more information, visit:
+- [DHLAB GitHub](https://github.com/NationalLibraryOfNorway/DHLAB)
+- [DHLAB Documentation](https://nationallibraryofnorway.github.io/DHLAB/)
+
+## License
+
+See LICENSE file.
