@@ -1,4 +1,4 @@
-# python-template
+# dhlab-mcp
 
 This project uses [`uv`](https://github.com/astral-sh/uv), which can be installed in one line: 
 ```bash
@@ -9,8 +9,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 To get started with the project:
 
 ```
-git clone https://github.com/marksverdhei/python-template.git
-cd python-template
+git clone https://github.com/marksverdhei/dhlab-mcp.git
+cd dhlab-mcp
 ```
 
 Then install project with
@@ -27,11 +27,11 @@ uv pip install -e .
 
 Then you can run the default cli, which can be customized in `cli.py` and `pyproject.toml`  
 ```
-$ python-template
-Hello from python-template
+$ dhlab-mcp
+Hello from dhlab-mcp
 ```
 
 How to install:
 ```bash
-pip install git+https://github.com/marksverdhei/python-template.git
+pip install git+https://github.com/marksverdhei/dhlab-mcp.git
 ```
