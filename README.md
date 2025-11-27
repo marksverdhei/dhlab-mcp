@@ -69,6 +69,28 @@ Or in development mode:
 uv run dhlab-mcp
 ```
 
+### Running as a Local HTTP API
+
+To run the MCP server as a local HTTP API on a custom port:
+
+```bash
+# Run on default port 8000
+dhlab-mcp --transport http
+
+# Run on a custom port
+dhlab-mcp --transport http --port 9000
+
+# Run on a specific host and port
+dhlab-mcp --transport http --host 0.0.0.0 --port 8080
+```
+
+The server supports the following transport options:
+- `stdio` (default): Standard input/output for CLI integration
+- `http`: Streamable HTTP transport (recommended for network access)
+- `sse`: Server-Sent Events transport (legacy, for backward compatibility)
+
+Once running, the HTTP server will be available at `http://<host>:<port>/mcp/`.
+
 ### Available Tools
 
 #### 1. `search_texts`

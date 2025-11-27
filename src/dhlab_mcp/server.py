@@ -295,7 +295,33 @@ def get_corpus_statistics(urns: list[str]) -> str:
 
 def main():
     """Run the MCP server."""
-    mcp.run()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="DHLAB MCP Server")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "http", "sse"],
+        default="stdio",
+        help="Transport protocol (default: stdio)",
+    )
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host to bind to when using http/sse transport (default: 127.0.0.1)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to bind to when using http/sse transport (default: 8000)",
+    )
+
+    args = parser.parse_args()
+
+    if args.transport in ("http", "sse"):
+        mcp.run(transport=args.transport, host=args.host, port=args.port)
+    else:
+        mcp.run()
 
 
 if __name__ == "__main__":
