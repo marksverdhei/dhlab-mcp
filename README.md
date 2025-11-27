@@ -40,10 +40,14 @@ pip install git+https://github.com/marksverdhei/dhlab-mcp.git
 Add the MCP server to your Claude Code configuration:
 
 ```bash
-claude mcp add --transport stdio dhlab -- uv --directory /path/to/dhlab-mcp run dhlab-mcp
+# inside the repo directory:
+claude mcp add --transport stdio dhlab -- uv --directory $PWD run dhlab-mcp
 ```
+or under user scope:
 
-Replace `/path/to/dhlab-mcp` with the actual path where you cloned this repository.
+```bash
+claude mcp add --scope user --transport stdio dhlab -- uv --directory $PWD run dhlab-mcp
+```
 
 Verify the server is added:
 ```bash
@@ -91,7 +95,7 @@ Get word frequency trends over time.
 ```
 
 #### 3. `find_concordances`
-Find word contexts in a document.
+Find word contexts in a document (returns HTML-formatted text).
 ```python
 {
   "urn": "URN:NBN:no-nb_digibok_2008051404065",
@@ -100,7 +104,29 @@ Find word contexts in a document.
 }
 ```
 
-#### 4. `find_collocations`
+**Output format**: HTML-formatted concordance with `<b>` tags highlighting matches.
+
+#### 4. `word_concordance`
+Find word contexts with structured output (no HTML formatting).
+```python
+{
+  "urn": "URN:NBN:no-nb_digibok_2008051404065",
+  "word": "Norge",
+  "window": 12
+}
+```
+
+**Output format**: Clean structured data with separate fields:
+- `dhlabid`: Document identifier
+- `before`: Text before the matched word
+- `target`: The matched word itself
+- `after`: Text after the matched word
+
+**Use cases**:
+- Use `find_concordances` for display/UI (HTML-formatted)
+- Use `word_concordance` for analysis/processing (structured data)
+
+#### 5. `find_collocations`
 Find words that appear near the target word.
 ```python
 {
@@ -110,7 +136,7 @@ Find words that appear near the target word.
 }
 ```
 
-#### 5. `lookup_word_forms`
+#### 6. `lookup_word_forms`
 Look up different forms of a Norwegian word.
 ```python
 {
@@ -118,7 +144,7 @@ Look up different forms of a Norwegian word.
 }
 ```
 
-#### 6. `lookup_word_lemma`
+#### 7. `lookup_word_lemma`
 Look up the lemma (base form) of a word.
 ```python
 {
@@ -126,7 +152,7 @@ Look up the lemma (base form) of a word.
 }
 ```
 
-#### 7. `search_images`
+#### 8. `search_images`
 Search for images in the collection.
 ```python
 {
@@ -137,7 +163,7 @@ Search for images in the collection.
 }
 ```
 
-#### 8. `get_corpus_statistics`
+#### 9. `get_corpus_statistics`
 Get statistics about a set of documents.
 ```python
 {

@@ -120,6 +120,51 @@ def find_concordances(
 
 
 @mcp.tool()
+def word_concordance(
+    urn: str,
+    word: str,
+    window: int = 12,
+    limit: int = 100,
+) -> str:
+    """Find concordances with structured output (no HTML formatting).
+
+    Returns clean format with separate before/target/after fields instead of HTML-formatted text.
+    This is useful for programmatic analysis where you need the matched word separated from context.
+
+    Args:
+        urn: URN identifier for the document
+        word: Word to find concordances for
+        window: Number of words before and after the match (default: 12, max: 24)
+        limit: Maximum number of concordances to return (default: 100)
+
+    Returns:
+        JSON string containing structured concordance results with fields:
+        - dhlabid: Document identifier
+        - before: Text before the matched word
+        - target: The matched word itself
+        - after: Text after the matched word
+    """
+    try:
+        from dhlab.api.dhlab_api import word_concordance as dhlab_word_concordance
+
+        # Call dhlab's word_concordance method directly
+        # Note: urn parameter expects a list, words parameter expects a list
+        result = dhlab_word_concordance(
+            urn=[urn],
+            words=[word],
+            before=window,
+            after=window,
+            limit=limit
+        )
+
+        if result is not None and len(result) > 0:
+            return result.to_json(orient='records', force_ascii=False)
+        return "No concordances found"
+    except Exception as e:
+        return f"Error finding word concordances: {str(e)}"
+
+
+@mcp.tool()
 def find_collocations(
     urn: str,
     word: str,
