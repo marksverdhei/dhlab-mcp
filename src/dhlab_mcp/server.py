@@ -119,6 +119,9 @@ def find_concordances(
         return f"Error finding concordances: {str(e)}"
 
 
+_WORD_CONCORDANCE_MAX_WINDOW = 24
+
+
 @mcp.tool()
 def word_concordance(
     urn: str,
@@ -143,7 +146,14 @@ def word_concordance(
         - before: Text before the matched word
         - target: The matched word itself
         - after: Text after the matched word
+
+    Raises:
+        ValueError: If window exceeds the maximum allowed value of 24.
     """
+    if window > _WORD_CONCORDANCE_MAX_WINDOW:
+        raise ValueError(
+            f"window must be at most {_WORD_CONCORDANCE_MAX_WINDOW}, got {window}"
+        )
     try:
         from dhlab.api.dhlab_api import word_concordance as dhlab_word_concordance
 
