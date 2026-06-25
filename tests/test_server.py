@@ -118,7 +118,7 @@ class TestNgramFrequencies:
         ng = self._make_ng({"1950": 0.002})
         with patch("dhlab_mcp.server.dhlab") as mock_dhlab:
             mock_dhlab.NgramNews.return_value = ng
-            result = ngram_frequencies.fn(["avis"], corpus="avis")
+            ngram_frequencies.fn(["avis"], corpus="avis")
         mock_dhlab.NgramNews.assert_called_once()
 
     def test_no_data_returns_message(self):
