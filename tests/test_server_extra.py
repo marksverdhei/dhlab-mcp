@@ -240,6 +240,17 @@ class TestSearchImages:
 
         mock_fn.assert_called_once_with(term="oslo", number=5, mediatype="bilder")
 
+    def test_signature_does_not_accept_year_params(self):
+        """Regression: from_year / to_year were previously declared on the
+        tool but silently ignored by the underlying find_urls (which has no
+        date filter). The signature now omits them so MCP clients see the
+        accurate API surface instead of dead parameters."""
+        import inspect
+        from dhlab_mcp.server import search_images
+        sig = inspect.signature(search_images.fn)
+        assert "from_year" not in sig.parameters
+        assert "to_year" not in sig.parameters
+
 
 # ---------------------------------------------------------------------------
 # get_corpus_statistics
