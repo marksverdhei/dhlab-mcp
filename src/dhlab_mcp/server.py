@@ -253,19 +253,20 @@ def lookup_word_lemma(word: str) -> str:
 def search_images(
     query: str,
     limit: int = 10,
-    from_year: int | None = None,
-    to_year: int | None = None,
 ) -> str:
     """Search for images in the National Library's digital collection.
 
     Args:
         query: Search query string
         limit: Maximum number of results (default: 10)
-        from_year: Start year (optional)
-        to_year: End year (optional)
 
     Returns:
         JSON string containing image search results with URLs
+
+    Note:
+        The underlying ``dhlab.images.nbpictures.find_urls`` API does not
+        currently support year filtering. If date scoping is added upstream,
+        ``from_year`` / ``to_year`` parameters can be re-added here.
     """
     try:
         from dhlab.images.nbpictures import find_urls
