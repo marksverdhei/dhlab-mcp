@@ -198,7 +198,6 @@ Get statistics about a set of documents.
 For development, install with:
 ```bash
 uv sync --dev
-uv pip install -e .
 ```
 
 Run tests:
