@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from unittest.mock import MagicMock, patch
 
@@ -209,15 +208,11 @@ class TestLookupWordLemma:
 
 class TestMainArgParser:
     def _build_parser(self):
-        parser = argparse.ArgumentParser(description="DHLAB MCP Server")
-        parser.add_argument(
-            "--transport",
-            choices=["stdio", "http", "sse"],
-            default="stdio",
-        )
-        parser.add_argument("--host", default="127.0.0.1")
-        parser.add_argument("--port", type=int, default=8000)
-        return parser
+        # Use the real production parser — tests previously mirrored the
+        # argparse setup inline, which drifted from main() silently when
+        # flags were added or defaults changed.
+        from dhlab_mcp.server import _make_parser
+        return _make_parser()
 
     def test_default_transport_is_stdio(self):
         parser = self._build_parser()
@@ -258,3 +253,24 @@ class TestMainArgParser:
         parser = self._build_parser()
         args = parser.parse_args(["--port", "9090"])
         assert args.port == 9090
+
+    def test_main_dispatches_http_with_host_and_port(self):
+        # End-to-end main() dispatch — covers the http/sse branch which
+        # passes transport+host+port through to mcp.run.
+        from dhlab_mcp.server import main
+        from unittest.mock import patch
+        with patch("sys.argv", ["dhlab-mcp", "--transport", "http",
+                                 "--host", "0.0.0.0", "--port", "9090"]), \
+             patch("dhlab_mcp.server.mcp.run") as mock_run:
+            main()
+        mock_run.assert_called_once_with(transport="http", host="0.0.0.0", port=9090)
+
+    def test_main_dispatches_stdio_with_no_args(self):
+        # End-to-end main() dispatch — covers the stdio branch which is
+        # the default and takes no transport/host/port kwargs.
+        from dhlab_mcp.server import main
+        from unittest.mock import patch
+        with patch("sys.argv", ["dhlab-mcp"]), \
+             patch("dhlab_mcp.server.mcp.run") as mock_run:
+            main()
+        mock_run.assert_called_once_with()

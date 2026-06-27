@@ -304,8 +304,11 @@ def get_corpus_statistics(urns: list[str]) -> str:
         return f"Error getting corpus statistics: {str(e)}"
 
 
-def main():
-    """Run the MCP server."""
+def _make_parser():
+    """Build the CLI argument parser. Factored out so tests can exercise the
+    actual production parser instead of re-declaring it (which is drift-prone:
+    any new flag added here must also be added to the test mirror, and the
+    test passes regardless of whether main() ever wires the flag through)."""
     import argparse
 
     parser = argparse.ArgumentParser(description="DHLAB MCP Server")
@@ -326,8 +329,12 @@ def main():
         default=8000,
         help="Port to bind to when using http/sse transport (default: 8000)",
     )
+    return parser
 
-    args = parser.parse_args()
+
+def main():
+    """Run the MCP server."""
+    args = _make_parser().parse_args()
 
     if args.transport in ("http", "sse"):
         mcp.run(transport=args.transport, host=args.host, port=args.port)
